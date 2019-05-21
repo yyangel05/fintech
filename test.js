@@ -130,3 +130,29 @@ var result = fs.readFileSync('test.txt', 'utf8');
 
 console.log(result);
 console.log('C');
+
+
+//콜백함수 실습
+console.log("\n\n<<<<<<<콜백함수 실습>>>>>>>");
+function callbackFunc(callback) {
+    fs.readFile('test.txt','utf8',function(err,result) {
+        if(err) {
+            console.error(err);
+            throw err;
+        }
+        else {
+            console.error("두번째 기능인데 파일을 읽어오느리 시간이 조금 걸려요...");
+            callback(result);
+        }
+    });
+}
+
+console.log("A");
+callbackFunc(function(data) {
+    console.log(data);
+    console.log("C");
+})
+
+//콜백함수의문제점 -> 순차로 부르려니 줄이 너무 길어짐
+//callback hell이라 부름
+
