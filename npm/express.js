@@ -1,10 +1,11 @@
 var express = require("express"),
 app = express();
+/*
 app.set('views', __dirname ,module= "C:\Users\NTGAYEON\git\fintech\npm\node_modules\ejs\index");
 app.set('view engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
 
-
+*/
 var request = require('request');
 var parseString = require('xml2js').parseString;
 
