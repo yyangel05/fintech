@@ -1,3 +1,5 @@
+login.ejs 선생님 코드 말고, 내가 응용한 코드 원본
+
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
@@ -37,76 +39,42 @@
         
     <div class="page-content-black"></div>
     <div class="page-content">   
-
         <div class="cover-wrapper cover-no-buttons">
             <div data-height="cover" class="caption bottom-0">
                 <div class="caption-center">
 
                     <div class="left-50 right-50 top-50">
-                        <h1 class="color-white center-text uppercase ultrabold fa-3x">Register</h1>
-                        <p class="color-highlight center-text font-12 under-heading bottom-30">
-                            Create an Account. It's 100% free
+                        <h1 class="color-white center-text uppercase ultrabold fa-4x">LOGIN</h1>
+                        <p class="color-highlight center-text font-12 under-heading bottom-30 top-5">
+                            Let's get you in your account
                         </p>
                         <div class="input-style input-light has-icon input-style-1 input-required">
                             <i class="input-icon fa fa-user font-11"></i>
                             <span>Username</span>
                             <em>(required)</em>
-                            <input type="name" id="nameInput" placeholder="Username">
+                            <input type="name" id="emailInput" placeholder="Username">
                         </div> 
-                        <div class="input-style input-light has-icon input-style-1 input-required">
-                                <i class="input-icon fas fa-birthday-cake font-11"></i>
-                                <span>Birth</span>
-                                <em>(required)</em>
-                                <input type="birth" id="birthInput" placeholder="Birth">
-                            </div> 
-                        <div class="input-style input-light has-icon input-style-1 input-required">
-                            <i class="input-icon fa fa-at"></i>
-                            <span>Email</span>
-                            <em>(required)</em>
-                            <input type="email" id="emailInput" placeholder="Email">
-                        </div>   
-
-                        <div class="input-style input-light has-icon input-style-1 input-required">
-                            <i class="input-icon fa fa-at"></i>
-                            <span>access token</span>
-                            <em>(required)</em>
-                            <input type="text" id="accessToken" placeholder="accessToken">
-                        </div>
-                        <div class="input-style input-light has-icon input-style-1 input-required">
-                            <i class="input-icon fa fa-at"></i>
-                            <span>refresh token</span>
-                            <em>(required)</em>
-                            <input type="text" id="refreshToken" placeholder="refreshToken">
-                        </div>        
-                        <div class="input-style input-light has-icon input-style-1 input-required">
-                            <i class="input-icon fa fa-at"></i>
-                            <span>userId</span>
-                            <em>(required)</em>
-                            <input type="text" id="userseqnum" placeholder="userseqnum">
-                        </div>    
-
-                        <div class="input-style input-light has-icon input-style-1 input-required">
+                        <div class="input-style input-light has-icon input-style-1 input-required bottom-30">
                             <i class="input-icon fa fa-lock font-11"></i>
                             <span>Password</span>
                             <em>(required)</em>
-                            <input type="password" id="passInput" placeholder="Choose a Password">
+                            <input type="password" id="passInput" placeholder="Password">
                         </div>          
-                        <div class="input-style input-light has-icon input-style-1 input-required">
-                            <i class="input-icon fas fa-phone font-11"></i>
-                            <span>Phone</span>
-                            <em>(required)</em>
-                            <input type="phone" id="phoneInput" placeholder="Phone">
-                        </div>         
-                        <a href="http://localhost:3000/login" class="color-white opacity-50 text-center font-11 top-30">Already Registered? Sign In here</a>
-                        <button type="button" id="authBtn" class="button button-full button-m shadow-large button-round-small bg-highlight top-30 bottom-0">인증받기</button>
-                        <a href="#" id="joinBtn" class="back-button button button-full button-m shadow-large button-round-small bg-highlight top-30 bottom-0">CREATE ACCOUNT</a>
+                        <div class="one-half">
+                            <a href="http://localhost:3000/join" class="font-11 color-white opacity-50">Create Account</a>
+                        </div>
+                        <div class="one-half last-column">
+                            <a href="pageapp-forgot.html" class="text-right font-11 color-white opacity-50">Fogot Credentials</a>
+                        </div>
+                        <div class="clear"></div>
+                        <a href="#" id="loginBtn" class="back-button button button-full button-m shadow-large button-round-small bg-highlight top-30 bottom-0">LOGIN</a>
                     </div>
 
                 </div>
             </div>   
-            <div class="caption-overlay bg-black opacity-80"></div>
-            <div class="caption-bg" style="background-image:url(images/pictures/20t.jpg)"></div>
-        </div>                 
+            <div class="caption-overlay bg-black opacity-90"></div>
+            <div class="caption-bg" style="background-image:url(images/pictures/29t.jpg)"></div>
+        </div>
     </div>
     <!-- Page Content Class Ends Here-->
 
@@ -238,51 +206,20 @@
 <script type="text/javascript" src="scripts/plugins.js"></script>
 <script type="text/javascript" src="scripts/custom.js"></script>
 <script>
-    $("#authBtn").click(function() {
-        var client_id = "l7xx697de99a02da4106a23d66c1d088e83a";
-        var redirect_uri ="http://localhost:3000/authResult";
-        var scope = "login inquiry transfer";
-        var response_type ="JSON";
-        var qs = 
-        "?response_type=code&"
-        + "client_id="+client_id+"&"
-        + "redirect_uri=http://localhost:3000/authResult&"
-        + "scope="+scope+"&"
-        + "auth_type=0&"
-        + "invoke_type=ajax"
-
-        $.ajax({
-            url:'https://testapi.open-platform.or.kr/oauth/2.0/authorize2'+qs,
-            type : 'GET',
-            success:function(data){
-                console.log(data.location);
-                var tmpwindow = window.open("about:blank");
-                tmpwindow.location = data.location;
-            }
-        })
-    })
-
-    $("#joinBtn").click(function() {
-       // alert($("#nameInput").val());
+  $("#loginBtn").click(function() {
        $.ajax({
-           url:'http://localhost:3000/join',
+           url:'http://localhost:3000/login',
            type : 'POST',
            data : {
-               name : $("#nameInput").val(),
-               birth : $("#birthInput").val(),
                email : $("#emailInput").val(),
                password : $("#passInput").val(),
-               phone : $("#phoneInput").val(),
-               accessToken : $("#accessToken").val(),
-               refreshToken : $("#refreshToken").val(),
-               userseqnum : $("#userseqnum").val(),
            },
            success:function(data){
                alert(data);
            }
        })
    });
+   
 </script>
-
-
 </body>
+

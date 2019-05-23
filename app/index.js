@@ -9,6 +9,14 @@ var port = process.env.PORT ||3000;
 app.use(express.static(__dirname+'/public'))
 
 var request = require("request");
+var jwt = require('jsonwebtoken');
+var tokenKey = 'f$i1nt#ec1hT@oke1n!Key';
+var auth = require('./lib/auth');
+var cors = require('cors');
+
+
+
+//var tokenKey = 'f$i1nt#ec1hT@oke1n!Key'
 
 //DB설정
 var mysql = require('mysql');
@@ -22,12 +30,13 @@ connection.connect();
 
 app.use(express.json());
 app.use(express.urlencoded({extended:false}));
+app.use(cors());
 
 //
-app.get('/main', function(req, res) {
+//app.get('/main', function(req, res) {
     //res.send('HELLO EXPRESS');
-    res.render('index');
-})
+   // res.render('index');
+//})
 app.get('/gallery', function(req, res) {
     res.render('gallery-collections');
 })
@@ -36,12 +45,15 @@ app.get('/join', function(req, res) {
     res.render('join');
 })
 
+app.get('/login', function(req, res) {
+    res.render('login');
+})
+
 app.listen(port);
 console.log("Listening on port", port);
 
 //데이터 받는 코드만들기
 app.post('/join', function(req, res) {
-
     console.log(req.body);
 
     var name = req.body.name;
@@ -51,11 +63,11 @@ app.post('/join', function(req, res) {
     var phone = req.body.phone;
     var accessToken = req.body.accessToken;
     var refreshToken = req.body.refreshToken;
-    var useseqnum = req.body.useseqnum;
+    var userseqnum = req.body.userseqnum;
 
     console.log(name, birth, user_id, user_password, phone);
-    var sql = "INSERT INTO `fintech`.`user` (`name`, `birth`, `user_id`, `user_password`, `phone`,`accessToken`, `refreshToken`, `useseqnum`) VALUES (?,?,?,?,?,?,?,?);";
-    connection.query(sql,[name, birth, user_id, user_password, phone, accessToken, refreshToken, useseqnum], function(error, results) {
+    var sql = "INSERT INTO `fintech`.`user` (`name`, `birth`, `user_id`, `user_password`, `phone`,`accessToken`, `refreshToken`, `userseqnum`) VALUES (?,?,?,?,?,?,?,?);";
+    connection.query(sql,[name, birth, user_id, user_password, phone, accessToken, refreshToken, userseqnum], function(error, results) {
         if(error) throw error;
         else {
             console.log(this.sql);
@@ -98,3 +110,137 @@ app.get('/authResult', function(req, res) {
         }
     })
 })
+
+//내가 짠 login코드
+app.post('/login',function(req,res) {
+    var login_id = req.body.email;
+    var login_password = req.body.password;
+
+    var sql = "select * from user where user_id =?";
+    connection.query(sql,[login_id],function(error, results) {
+        if(error) throw error;
+        else {
+            console.log('패스워드'+ results[0].user_password);
+
+            if(login_password == results[0].user_password) {
+                jwt.sign(
+                    {
+                        userName : results[0].name,
+                        userId : results[0].user_id
+                    },
+                    tokenKey,
+                    {
+                        expiresIn : '1d',
+                        issuer : 'fintech.admin',
+                        subject : 'user.login.info'
+                    },
+                    function(err, token) {
+                        console.log('로그인 성공',token);
+                        res.json(token);
+                    }
+                )
+            }
+            else {
+                res.json('등록정보가 없습니다');
+            }
+        }
+    });  
+})
+
+app.get('/main', function(req, res) {
+    res.render('main');
+})
+
+app.post('/getUser', auth, function(req, res) {
+    var userId = req.decoded.userId;
+    var sql = "select userseqnum, accessToken from user where user_id=?";
+    connection.query(sql, [userId], function(err, result) {
+        if(err) {
+            console.error(err);
+            throw err;
+        }
+        else {
+            var option ={
+                method : "GET",
+                url :'https://testapi.open-platform.or.kr/user/me?user_seq_no='+ result[0].userseqnum,
+                headers : {
+                    'Authorization' : 'Bearer ' + result[0].accessToken
+                }
+            };
+            request(option, function(err, response, body) {
+                if(err) throw err;
+                else {
+                    console.log(body);
+                    res.json(JSON.parse(body));
+                }
+            })
+        }
+    })
+})
+
+app.get('/tokenTest', auth, function(req,res) {
+    console.log(req.decoded);
+})
+
+//잔액조회 실습
+app.get('/balance', function(req, res) {
+    res.render('balance');
+})
+
+app.post('/balance', auth, function(req, res) {
+    var userId = req.decoded.userId;
+    var sql = "select userseqnum, accessToken from user where user_id=?";
+    var finNum = req.body.finNum;
+    connection.query(sql, [userId], function(err, result) {
+        if(err) {
+            console.error(err);
+            throw err;
+        }
+        else {
+            var option ={
+                method : "GET",
+                url :'https://testapi.open-platform.or.kr/v1.0/account/balance?fintech_use_num='+finNum+'&tran_dtime=20190521101921',
+                //url :'https://testapi.open-platform.or.kr/v1.0/account/balance?fintech_use_num='+ req.decoded.fintech_use_num +'&tran_dtime=20161111111111', 
+                headers : {
+                    'Authorization' : 'Bearer ' + result[0].accessToken
+                }
+            };
+            request(option, function(err, response, body) {
+                if(err) throw err;
+                else {
+                    console.log(body);
+                    res.json(JSON.parse(body));
+                    //res.render('balance', {data : JSON.parse(body)})
+                }
+            })
+        }
+    })    
+})
+
+//계좌조회 연습용으로 써본 코드
+/*
+app.get('/myAccount', auth, function(req, res) {
+    var userId = req.decoded.userId;
+    var sql = "select userseqnum, accessToken from user where user_id=?";
+    connection.query(sql, [userId], function(err, result) {
+        if(err) {
+            console.error(err);
+            throw err;
+        }
+        else {
+            var option ={
+                method : "GET",
+                url :'https://testapi.open-platform.or.kr/user/me?user_seq_no='+ result[0].userseqnum,
+                headers : {
+                    'Authorization' : 'Bearer ' + result[0].accessToken
+                }
+            };
+            request(option, function(err, response, body) {
+                if(err) throw err;
+                else {
+                    console.log(body);
+                }
+            })
+        }
+    })
+})*/
