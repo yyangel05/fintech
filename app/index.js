@@ -14,10 +14,6 @@ var tokenKey = 'f$i1nt#ec1hT@oke1n!Key';
 var auth = require('./lib/auth');
 var cors = require('cors');
 
-
-
-//var tokenKey = 'f$i1nt#ec1hT@oke1n!Key'
-
 //DB설정
 var mysql = require('mysql');
 var connection = mysql.createConnection({
@@ -151,6 +147,7 @@ app.get('/main', function(req, res) {
     res.render('main');
 })
 
+//발급된 토큰과 유저가 일치하는지 확인하는 실습
 app.post('/getUser', auth, function(req, res) {
     var userId = req.decoded.userId;
     var sql = "select userseqnum, accessToken from user where user_id=?";
@@ -217,6 +214,38 @@ app.post('/balance', auth, function(req, res) {
     })    
 })
 
+//거래내역조회 실습
+app.post('/transaction_list', auth, function(req, res) {    
+    var userId = req.decoded.userId;
+    var sql = "select userseqnum, accessToken from user where user_id=?";
+    var finNum = req.body.finNum;
+    //var inquiry_type = req.body.inquiry_type;
+    connection.query(sql, [userId], function(err, result) {
+        if(err) {
+            console.error(err);
+            throw err;
+        }
+        else {
+            var option ={
+                method : "GET",
+                url :'https://testapi.open-platform.or.kr/v1.0/account/transaction_list?fintech_use_num='+finNum+
+                    '&tran_dtime=20190521101921'+'&inquiry_type=A'+'&from_date=20160101'+'&to_date=20170101'+
+                    '&sort_order=D'+'&page_index=1' ,
+                headers : {
+                    'Authorization' : 'Bearer ' + result[0].accessToken
+                }
+            };
+            request(option, function(err, response, body) {
+                if(err) throw err;
+                else {
+                    console.log(body);
+                    res.json(JSON.parse(body));
+                }
+            })
+        }
+    })    
+})
+      
 //계좌조회 연습용으로 써본 코드
 /*
 app.get('/myAccount', auth, function(req, res) {
